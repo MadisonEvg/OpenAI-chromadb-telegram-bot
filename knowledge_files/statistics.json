@@ -1,0 +1,17 @@
+{
+    "total_dialogs": 2,
+    "successful_dialogs": 2,
+    "conversion": 100.0,
+    "GPT-4o-total_tokens_in": 243409,
+    "GPT-4o-total_tokens_out": 6125,
+    "GPT-4o-MINI-total_tokens_in": 0,
+    "GPT-4o-MINI-total_tokens_out": 0,
+    "GPT-4o-total_cost_in": 0.6085225,
+    "GPT-4o-total_cost_out": 0.06125000000000006,
+    "GPT-4o-MINI-total_cost_in": 0.0,
+    "GPT-4o-MINI-total_cost_out": 0.0,
+    "processed_numbers": [
+        "79143341390",
+        "79146738418"
+    ]
+}
