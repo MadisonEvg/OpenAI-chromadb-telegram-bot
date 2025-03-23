@@ -248,15 +248,8 @@ class OpenAIClient:
 
     def load_knowledge_files(self):
         folder_path = Path("knowledge_files")
-        # knowledge_files = [
-        #     (file.name, file.stem)  # (полное имя файла, имя без расширения)
-        #     for file in folder_path.glob("*.json")  # Загружаем только JSON
-        # ]
         for file in folder_path.glob("*.json"):
             self.read_and_embed(str(file), file.stem)
-
-        # for file_path, source in files:
-        #     self.read_and_embed(file_path, source)
 
     def read_and_embed(self, file_path, source):
         try:
