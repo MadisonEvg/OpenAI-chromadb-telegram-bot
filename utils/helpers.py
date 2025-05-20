@@ -1,6 +1,7 @@
 import json
 import re
 import tiktoken
+from logger_config import logger
 
 
 def count_tokens(messages, response, model="gpt-4"):
@@ -31,13 +32,13 @@ def extract_phone_from_text(text):
     if match:
         phone_digits = re.sub(r'\D', '', match.group())  # Убираем все нецифровые символы
         if len(phone_digits) >= 7:  # Проверяем, что цифр в номере хотя бы 7
-            print(f"Найден номер телефона: {match.group()}")
+            logger.info(f"Найден номер телефона: {match.group()}")
             return True
         else:
-            print("Ошибка: номер слишком короткий.")
+            logger.info("Ошибка: номер слишком короткий.")
             return False
     else:
-        print("Номер телефона не найден.")
+        logger.info("Номер телефона не найден.")
         return False
 
 def load_json_data():

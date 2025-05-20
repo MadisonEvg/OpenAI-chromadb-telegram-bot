@@ -19,4 +19,4 @@ class Config:
     PROXY_URL = os.getenv('PROXY_URL', 1)
     MODEL_GPT4O = "gpt-4o"
     MODEL_GPT4OMINI = "gpt-4o-mini"
-    MAX_TOKENS = 3500
+    MAX_TOKENS = 10500
