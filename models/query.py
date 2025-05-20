@@ -101,23 +101,24 @@ def get_filtered_apartments(
         
     grouped = defaultdict(list)
     for apt in apartments:
-        key = (apt.complex.complex_name, apt.apartment_type, apt.price)
+        key = (apt.complex.complex_name, apt.apartment_type, apt.price, apt.num_rooms)
         grouped[key].append({
             "square": apt.size_sqm,
             "num_rooms": apt.num_rooms,
             "complex_text": apt.complex.general_texts,
         })
         
-    first_three_dd = defaultdict(list, islice(grouped.items(), 3))
+    # first_three_dd = defaultdict(list, islice(grouped.items(), 3))
+    first_three_dd = defaultdict(list, grouped.items())
     result = []
     compResidentialComplex_set = set()
     # инфа по комлексам из трёх подходящих результатов, добавляем в другом месте!
-    for (complex_name, apartment_type, price), apts in first_three_dd.items():
-        result.append({
-            "complex_name": complex_name,
-            "apartment_type": apartment_type,
-            "price": price,
-        })
+    # for (complex_name, apartment_type, price), apts in first_three_dd.items()[0:3]:
+    #     result.append({
+    #         "complex_name": complex_name,
+    #         "apartment_type": apartment_type,
+    #         "price": price,
+    #     })
     #     compResidentialComplex_set.add(apts[0]['complex_text'])
 
     # Формируем результат
@@ -138,24 +139,39 @@ def get_filtered_apartments(
     # result = []
     compResidentialComplex_set = set()
     # инфа по комлексам из трёх подходящих результатов, добавляем в другом месте!
-    for (complex_name, apartment_type, price), apts in first_three_dd.items():
+    for (complex_name, apartment_type, price, num_rooms), apts in first_three_dd.items():
         result.append({
             "complex_name": complex_name,
             "apartment_type": apartment_type,
             "price": price,
+            "num_rooms": num_rooms,
         })
         compResidentialComplex_set.add(f"{complex_name}: {apts[0]['complex_text']}")
     # results_str = "Промежуточный анализ запроса. Если вопрос по квартирам, наприиер, самая дешёвая или типа того, то лучше брать информацию из этого списка: /n "
     results_str = ""
-    for apt in result[0:3]:
-        results_str += f"{apt['apartment_type']} Цена: {apt['price']} ЖК: {apt['complex_name']}\n"
-    results_str += "\n"
+    cleared_results_str = ""
+    cleared_result = _clear_unused_data(result)
+    if complex_names is None:
+        for apt in cleared_result:
+            cleared_results_str += f"{apt['num_rooms']} Цена: {apt['price']} ЖК: {apt['complex_name']}\n"
+        cleared_results_str += "\n"
+        results_str = cleared_results_str
+    else:
+        for apt in result:
+            results_str += f"{apt['apartment_type']} Цена: {apt['price']} ЖК: {apt['complex_name']}\n"
+        results_str += "\n"
+        
+    
     
     logger.info("-------------------Варианты от промежуточного анализа диалога-----")
     logger.info(results_str)
     logger.info("------------------------------------------------------------------")
-    for compResidentialComplex in compResidentialComplex_set:
-        results_str += f"{compResidentialComplex}\n\n"
+    logger.info("-------------------Варианты от промежуточного анализа диалога 2 -----")
+    logger.info(cleared_results_str)
+    logger.info("------------------------------------------------------------------")
+    
+    # for compResidentialComplex in compResidentialComplex_set:
+    #     results_str += f"{compResidentialComplex}\n\n"
     results_str += complex_filtered
     complex_full_info = ""
     if complex_names is not None and len(complex_names) == 1:
@@ -163,6 +179,46 @@ def get_filtered_apartments(
     # results_str += "конец. "
     return "Результат промежуточного анализа запроса: /n" + results_str + "/n" + complex_full_info
 
+def _clear_unused_data(apartments):
+    # удаляем двойники
+    unique_apartments = {}
+
+    # Проходим по всем квартирам
+    for apartment in apartments:
+        num_rooms = apartment['num_rooms']
+        complex_name = apartment['complex_name']
+        price = int(apartment['price'])
+
+        # Если такой тип квартиры еще не встречался, добавляем его
+        if ".".join((complex_name, str(num_rooms))) not in unique_apartments:
+            unique_apartments[".".join((complex_name, str(num_rooms)))] = apartment
+            unique_apartments[".".join((complex_name, str(num_rooms)))]['num_rooms'] = get_app_type(num_rooms)
+        else:
+            # Сравниваем цены и сохраняем минимальную
+            existing_price = int(unique_apartments[".".join((complex_name, str(num_rooms)))]['price'])
+            if price <= existing_price:
+                unique_apartments[".".join((complex_name, str(num_rooms)))]['price'] = str(price)
+                unique_apartments[".".join((complex_name, str(num_rooms)))]['num_rooms'] = get_app_type(num_rooms)
+                unique_apartments[".".join((complex_name, str(num_rooms)))]['complex_name'] = complex_name
+                
+    for apartment in unique_apartments.values():
+        apartment['price'] = f"от " + f"{int(apartment['price']):,}".replace(',', ' ') + " руб." 
+
+    return  list(unique_apartments.values())
+
+def get_app_type(value):
+    if value == 0:
+        return "Студия"
+    elif value == 1:
+        return "Однокомнатная квартира"
+    elif value == 2:
+        return "Двухкомнатная квартира"
+    elif value == 3:
+        return "Трёхкомнатная квартира"
+    elif value == 4:
+        return "Четырёхкомнатная квартира"
+    elif value == 5:
+        return "Пятикомнатная квартира"
 
 def format_complex_with_apartments(session: Session, complex_name: str) -> str:
     complex_obj = session.query(ResidentialComplex).filter_by(complex_name=complex_name).first()
