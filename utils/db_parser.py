@@ -108,7 +108,8 @@ def parse_filter_text(text: str, complex_names=None):
         "min_price": None,
         "max_price": None,
         "sort_price": None,
-        "isfilter": True
+        "isfilter": True,
+        "limit": 3,
     }
     if complex_names:
         params["complex_names"] = complex_names
@@ -143,6 +144,8 @@ def parse_filter_text(text: str, complex_names=None):
             params["complex_names"] = [n.strip() for n in value.split(",")]
         elif key == "поиск жк":
             params["complex_search"] = True if value == "да" else False
+        elif key == "весь список":
+            params["limit"] = None if value == "да" else 3
         elif key == "фраза для поиска жк":
             params["complex_search_phrase"] = value
         elif key == "сортировка цены":

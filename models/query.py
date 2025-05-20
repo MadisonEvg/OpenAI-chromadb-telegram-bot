@@ -18,6 +18,7 @@ def get_filtered_apartments(
     sort_price="asc",
     complex_names=None,
     isfilter=True,
+    limit=3,
 ):
     if isfilter == False:
         return "Для указанного района отсутствуют варианты!"
@@ -151,9 +152,17 @@ def get_filtered_apartments(
     results_str = ""
     cleared_results_str = ""
     cleared_result = _clear_unused_data(result)
+    if limit is not None:
+        cleared_result_limited = cleared_result[:limit]
+        results_str = results_str[:limit]
+    else:
+        cleared_result_limited = cleared_result
+        
     if complex_names is None:
-        for apt in cleared_result:
+        for apt in cleared_result_limited:
             cleared_results_str += f"{apt['num_rooms']} Цена: {apt['price']} ЖК: {apt['complex_name']}\n"
+        if limit is not None and len(cleared_result) > 3:
+            cleared_results_str += f"\n Есть ещё {len(cleared_result) - 3} вариантов"
         cleared_results_str += "\n"
         results_str = cleared_results_str
     else:
