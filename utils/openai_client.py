@@ -71,7 +71,7 @@ class OpenAIClient:
         # Отправляем всю историю вместе с новым сообщением для GPT
         task_response = asyncio.create_task(self._ask_openai(
             history_for_mini,
-            model=Config.MODEL_GPT4OMINI
+            model=Config.MODEL_GPT4O
         ))
         gpt4_response, _, _ = await task_response
         logger.info("--get_gpt4o_mini response:")
