@@ -57,7 +57,7 @@ async def respond(update: Update, context: CallbackContext):
     complex_names = None
     if filters["complex_search"] or filters["complex_search_phrase"] is not None:
         user_phase = filters.pop('complex_search_phrase', None)
-        chromadb_result, complex_names = await chromadb_client.search_in_vector_db(user_phase)
+        chromadb_result = await chromadb_client.search_in_vector_db(user_phase)
         conversation_manager.add_update_message(chat_id, chromadb_result, "Результат поиска в базе знаний запроса")
         logger.info('complex_names setted')
     # if complex_names:
