@@ -66,6 +66,9 @@ async def respond(update: Update, context: CallbackContext):
     filters.pop('complex_search_phrase', None)
     filters.pop('complex_search', None)
     results = get_filtered_apartments(**filters)
+    logger.info('--- Результат промежуточного анализа запроса:')
+    logger.info(results)
+    logger.info("-----")
     
     conversation_manager.add_update_message(chat_id, results, "Результат промежуточного анализа запроса")
     
